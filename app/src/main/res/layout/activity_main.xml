@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.brioal.servicetest.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/main_et_host"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="169.254.2.11"/>
+
+        <EditText
+            android:id="@+id/main_et_port"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="9001"/>
+
+
+        <EditText
+            android:id="@+id/main_et_send"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="要发送到Service的数据"/>
+
+        <Button
+            android:id="@+id/main_btn_setup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="发送消息"
+            android:textAllCaps="false"/>
+
+        <Button
+            android:id="@+id/main_btn_start"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="开启Service"
+            android:textAllCaps="false"/>
+
+        <Button
+            android:id="@+id/main_btn_close"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="签到"
+            android:textAllCaps="false"/>
+
+        <TextView
+            android:id="@+id/main_tv_msg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Service接收到的消息"
+            android:textColor="@android:color/holo_green_dark"
+            android:textSize="18sp"/>
+
+    </LinearLayout>
+
+</ScrollView>
