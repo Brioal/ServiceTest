@@ -41,11 +41,11 @@ public class MainActivity extends AppCompatActivity implements OnMsgGetListener 
             @Override
             public void onClick(View v) {
                 if (isRunning) {
-                    mBtnStart.setText("关闭");
+                    mBtnStart.setText("开启");
                     closeMsg();
                     isRunning = false;
                 } else {
-                    mBtnStart.setText("开启");
+                    mBtnStart.setText("关闭");
                     startMsg();
                     isRunning = true;
                 }
@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements OnMsgGetListener 
         mBtnQiandao.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                sendMsgService("3000000300010d0030303030303030303030303031010b00313338393336353639323002000101003001040032313639ad59");
             }
         });
     }

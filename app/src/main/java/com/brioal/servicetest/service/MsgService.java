@@ -10,11 +10,9 @@ import com.brioal.servicetest.receiver.OnMsgGetListener;
 import com.brioal.servicetest.receiver.ViewBordCastReceiver;
 import com.socks.library.KLog;
 
-import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -29,8 +27,8 @@ public class MsgService extends Service implements OnMsgGetListener {
     private Socket mSocket;
     private DataOutputStream mDataOut;//输出流
     private DataInputStream mDataIn;//输入流
-    private String mHost = "192.168.191.1";//主机地址
-    private int mPort = 60000;//端口号
+    private String mHost = "172.16.242.128";//主机地址
+    private int mPort = 6000;//端口号
     private boolean isRunning = false;
     private List<String> mMsg = new ArrayList<>();
     private ViewBordCastReceiver mCastReceiver;
@@ -48,7 +46,7 @@ public class MsgService extends Service implements OnMsgGetListener {
         KLog.e("Port:" + mPort);
         bindViewService();
         isRunning = true;
-        initFreeSocket();//初始化心跳
+//        initFreeSocket();//初始化心跳
         initConnectedSocket();//初始化Socket链接
         initSendThread();//初始化发送
         initReceived();//初始化接收
@@ -69,7 +67,8 @@ public class MsgService extends Service implements OnMsgGetListener {
             public void run() {
                 while (isRunning) {
                     try {
-                        addMsg("Free Msg");
+                        KLog.e("Add Free Msg");
+                        addMsg("3100000300010d0030303030303030303030303031010b00313338393336353639323002000101003001040032313639ad59");
                         Thread.sleep(3000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -89,12 +88,14 @@ public class MsgService extends Service implements OnMsgGetListener {
     private void initSocket() {
         try {
             while (mDataOut == null || mDataIn == null) {
+                KLog.e("InitSocket");
                 mSocket = new Socket(mHost, mPort);
                 mDataOut = new DataOutputStream(mSocket.getOutputStream());
                 mDataIn = new DataInputStream(mSocket.getInputStream());
             }
         } catch (Exception e) {//服务器未开启
             e.printStackTrace();
+            isRunning = false;
         }
     }
 
@@ -140,11 +141,10 @@ public class MsgService extends Service implements OnMsgGetListener {
                             mDataIn.read(b);
                             StringBuffer buffer = new StringBuffer();
                             for (int i = 0; i < b.length; i++) {
-                                buffer.append(b[i]);
+                                buffer.append(b[i]-'0');
                             }
 
-                            final String content = new String(b, "utf-8");
-                            KLog.e(buffer.toString());
+                            KLog.e("收到：" + buffer.toString());
                             sendMsgView(buffer.toString());
                         }
                         Thread.sleep(1000);
@@ -168,6 +168,7 @@ public class MsgService extends Service implements OnMsgGetListener {
                     synchronized (ArrayList.class) {
                         if (mMsg.size() > 0) {
                             try {
+                                KLog.e(mMsg.get(0));
                                 sendMsg(mMsg.get(0));
                                 mMsg.remove(0);
                             } catch (Exception e) {
@@ -190,12 +191,20 @@ public class MsgService extends Service implements OnMsgGetListener {
     private void sendMsg(final String msg) {
         try {
             if (mDataOut != null) {
-                OutputStreamWriter outSW = new OutputStreamWriter(mDataOut, "GBK");
-                BufferedWriter bw = new BufferedWriter(outSW);
-                KLog.e("SendMessage" + msg);
-                bw.write(msg);
-                bw.flush();
-                outSW.flush();
+                byte[] testb = new byte[msg.length() / 2];
+                int index = 0;
+                for (int i = 0; i <= msg.length()-2; i+=2) {
+                    String s = msg.substring(i, i + 2);
+                    System.out.println(s);
+                    testb[index] = (byte) Integer.parseInt(s, 16);
+                    index++;
+                }
+                StringBuffer buffer = new StringBuffer();
+                for (int i = 0; i < testb.length; i++) {
+                    buffer.append(testb[i]);
+                }
+                KLog.e(buffer.toString());
+                mDataOut.write(testb);
                 mDataOut.flush();
             }
         } catch (IOException e) {
@@ -214,7 +223,7 @@ public class MsgService extends Service implements OnMsgGetListener {
     @Override
     public void received(String msg) {
         mMsg.clear();
-        addMsg("3000000300010d0030303030303030303030303031010b00313338393336353639323002000101003001040032313639ad59".trim());
+        addMsg(msg.trim());
     }
 
     //发送消息到View
@@ -231,7 +240,9 @@ public class MsgService extends Service implements OnMsgGetListener {
         isRunning = false;
         unregisterReceiver(mCastReceiver);
         try {
-            mSocket.close();
+            if (mSocket != null) {
+                mSocket.close();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
